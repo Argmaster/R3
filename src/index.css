@@ -1,0 +1,21 @@
+@import url("./font/JetBrainsMono.css");
+
+body {
+    margin: 0;
+    height: 100vh;
+    width: 100vw;
+}
+div#root {
+    height: 100%;
+    width: 100%;
+    align-items: ;
+}
+* {
+    font-family: "JetBrains Mono", monospace !important;
+}
+#DragBar {
+    -webkit-app-region: drag;
+}
+#DragBar * {
+    -webkit-app-region: none;
+}
