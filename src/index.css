@@ -8,14 +8,11 @@ body {
 div#root {
     height: 100%;
     width: 100%;
-    align-items: ;
 }
 * {
     font-family: "JetBrains Mono", monospace !important;
 }
-#DragBar {
+#AppDragBar {
     -webkit-app-region: drag;
-}
-#DragBar * {
-    -webkit-app-region: none;
+    user-select: none;
 }

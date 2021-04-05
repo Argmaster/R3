@@ -3,8 +3,8 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App.js";
 import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
-import { indigo } from "@material-ui/core/colors";
-
+import store from "./redux/settings/store";
+import { Provider } from "react-redux";
 
 const theme = createMuiTheme({
     palette: {
@@ -26,12 +26,14 @@ const theme = createMuiTheme({
         },
     },
 });
-0
+
 ReactDOM.render(
-    <React.StrictMode>
-        <MuiThemeProvider theme={theme}>
+    //<React.StrictMode>
+        <Provider store={store}>
+            <MuiThemeProvider theme={theme}>
                 <App />
-        </MuiThemeProvider>
-    </React.StrictMode>,
+            </MuiThemeProvider>
+        </Provider>,
+    //</React.StrictMode>,
     document.getElementById("root")
 );

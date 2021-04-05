@@ -1,13 +1,13 @@
-import React, { Component, useState } from "react";
+import React, { Component } from "react";
 import {
     AppBar,
     Toolbar,
     Typography,
     IconButton,
     Box,
+    useTheme,
 } from "@material-ui/core";
 import {
-    Settings as MenuIcon,
     Close,
     Minimize,
     CropSquare,
@@ -17,9 +17,18 @@ import {
 import { withStyles } from "@material-ui/core/styles";
 import HiddenListMenu from "./comp/HiddenListMenu";
 import HomePage from "./comp/HomePage";
+import SettingsPanel from "./comp/SettingsPanel";
 
 const { app } = window.require("@electron/remote");
 const fs = window.require("fs");
+
+/**
+ * Forcibly exit electron app (eg. after clicking X button)
+ */
+function EnforceExit() {
+    app.mainWindow.close();
+    app.exit();
+}
 
 class App extends Component {
     state = {
@@ -29,10 +38,39 @@ class App extends Component {
                 name: "Home Page",
                 version: "v1.0",
                 workspace: HomePage,
+                settings: [
+                    {
+                        label: "Dark Mode",
+                        type: "Boolean",
+                        entryArgs: {},
+                        defaultVal: true,
+                        callback: newVal => {},
+                    },
+                    {
+                        label: "Font size",
+                        type: "Number",
+                        entryArgs: {
+                            type: "unsigned",
+                            min: 7,
+                            max: 48,
+                        },
+                        defaultVal: 14,
+                        callback: (newVal, event) => {
+                            console.log(event.target);
+                        },
+                    },
+                ],
             },
         ],
         currentWorkspace: <HomePage />,
     };
+    getSettingList() {
+        let settingsList = [];
+        for (const e of this.state.ExtensionList) {
+            settingsList.push({ title: e.name, list: e.settings });
+        }
+        return settingsList;
+    }
     /**
      * Load Extensions from ./src/extensions folder
      */
@@ -40,13 +78,6 @@ class App extends Component {
         for (let path of fs.readdirSync("./src/extensions")) {
             this.LoadExtension(path);
         }
-    }
-    /**
-     * Forcibly exit electron app (eg. after clicking X button)
-     */
-    CloseApp() {
-        app.mainWindow.close();
-        app.exit();
     }
     /**
      * Imports and saves into this.state an enxtension module
@@ -70,29 +101,29 @@ class App extends Component {
     };
     /**
      * Render react component
-     * @returns React.Component
+     * @returns React Component
      */
     render() {
         const classes = this.props.classes;
         return (
             <div className={classes.appBody}>
                 <AppBar position="static" className={classes.appBar}>
-                    <Toolbar id="DragBar" variant="dense">
-                        <IconButton edge="start" color="inherit">
-                            <MenuIcon />
-                        </IconButton>
-                        <Typography variant="subtitle1">Extension:</Typography>
+                    <Toolbar variant="dense">
+                        <SettingsPanel
+                            entryList={this.getSettingList()}
+                        ></SettingsPanel>
+                        <Typography variant="subtitle1" id="AppDragBar">
+                            Extension:
+                        </Typography>
                         <HiddenListMenu
                             extensions={this.state.ExtensionList}
                             onLoadWorkspace={this.LoadWorkspace}
                         />
-                        <Box className={classes.spacer}>
-                            <Typography variant="body2" >
-                                v4.0.0-dev
-                            </Typography>
-                        </Box>
+                        <Box className={classes.spacer} id="AppDragBar"></Box>
+                        <Typography variant="body2" id="AppDragBar">
+                            v4.0.0-dev
+                        </Typography>
                         <IconButton
-                            color="inherit"
                             onClick={() => {
                                 if (
                                     app.mainWindow.webContents.isDevToolsOpened()
@@ -105,21 +136,18 @@ class App extends Component {
                             <DeveloperBoard />
                         </IconButton>
                         <IconButton
-                            color="inherit"
                             onClick={() => app.mainWindow.reload()}
                             className={classes.menuButton}
                         >
                             <Refresh />
                         </IconButton>
                         <IconButton
-                            color="inherit"
                             onClick={() => app.mainWindow.minimize()}
                             className={classes.menuButton}
                         >
                             <Minimize />
                         </IconButton>
                         <IconButton
-                            color="inherit"
                             onClick={() => {
                                 if (!app.mainWindow.isMaximized())
                                     app.mainWindow.maximize();
@@ -130,8 +158,7 @@ class App extends Component {
                             <CropSquare />
                         </IconButton>
                         <IconButton
-                            color="inherit"
-                            onClick={() => this.CloseApp()}
+                            onClick={() => EnforceExit()}
                             className={classes.menuButton}
                         >
                             <Close />
@@ -145,48 +172,53 @@ class App extends Component {
         );
     }
 }
-export default withStyles(theme => ({
-    menuButton: {
-        padding: "0.5rem",
-    },
-    title: {
-        paddingLeft: "1rem",
-    },
-    spacer: {
-        flexGrow: 1,
-        textAlign: 'right'
-    },
-    appBar: {
-        flexShrink: 0,
-    },
-    workspaceContainer: {
-        display: "flex",
-        height: "100%",
-        overflowY: "scroll",
-    },
-    appBody: {
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-        width: "100%",
-    },
-    "@global": {
-        "::-webkit-scrollbar": {
-            width: (theme.typography.fontSize * 2) / 3,
-            height: (theme.typography.fontSize * 2) / 3,
+export default withStyles(
+    theme => ({
+        menuButton: {
+            padding: "0.5rem",
         },
-        "::-webkit-scrollbar-track": {
-            backgroundColor: theme.palette.grey[300],
-            boxShadow: "0 0 5px #FFF",
+        title: {
+            paddingLeft: "1rem",
         },
-        "::-webkit-scrollbar-thumb": {
-            backgroundColor: theme.palette.grey[400],
+        spacer: {
+            flexGrow: 1,
+            textAlign: "right",
+            userSelect: "none",
+            height: "100%",
         },
-        "::-webkit-scrollbar-thumb:hover": {
-            backgroundColor: theme.palette.primary.light,
+        appBar: {
+            flexShrink: 0,
         },
-        "::-webkit-scrollbar-corner": {
-            backgroundColor: theme.palette.grey[300],
+        workspaceContainer: {
+            display: "flex",
+            height: "100%",
+            overflowY: "scroll",
         },
-    },
-}))(App);
+        appBody: {
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+            width: "100%",
+        },
+        "@global": {
+            "::-webkit-scrollbar": {
+                width: (theme.typography.fontSize * 4) / 5,
+                height: (theme.typography.fontSize * 4) / 5,
+            },
+            "::-webkit-scrollbar-track": {
+                backgroundColor: theme.palette.grey[300],
+                boxShadow: "0 0 5px #FFF",
+            },
+            "::-webkit-scrollbar-thumb": {
+                backgroundColor: theme.palette.grey[600],
+            },
+            "::-webkit-scrollbar-thumb:hover": {
+                backgroundColor: theme.palette.secondary.dark,
+            },
+            "::-webkit-scrollbar-corner": {
+                backgroundColor: theme.palette.grey[300],
+            },
+        },
+    }),
+    { withTheme: true }
+)(App);

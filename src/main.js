@@ -36,6 +36,7 @@ const createWindow = () => {
     }
     globalShortcut.register("Escape", () => mainWindow.close());
     globalShortcut.register("Ctrl+R", () => mainWindow.reload());
+    globalShortcut.register("Ctrl+M", () => mainWindow.minimize());
     // and load the index.html of the app.
 
     // Open the DevTools.

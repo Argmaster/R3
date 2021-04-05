@@ -8,4 +8,5 @@ export const EXTDEC = {
     name: "Mesh Library v1.0",
     version: "v1.0",
     workspace: Workspace,
+    settings: [],
 };

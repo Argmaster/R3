@@ -8,4 +8,5 @@ export const EXTDEC = {
     name: "Gerber Utils v3.0",
     version: "v3.0",
     workspace: Workspace,
+    settings: [],
 };
