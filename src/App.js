@@ -128,10 +128,10 @@ class App extends Component {
         const { EXTDEC } = await import(`./extensions/${extension}/Workspace`);
         const extdec = {
             ...EXTDEC,
-            id: this.state.ExtensionList.length,
+            source: `./src/extensions/${extension}`,
         };
         this.setState({
-            ExtensionList: [...this.state.ExtensionList, extdec].sort(),
+            ExtensionList: [...this.state.ExtensionList, extdec],
         });
     }
     /**

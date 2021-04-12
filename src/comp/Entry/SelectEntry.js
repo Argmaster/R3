@@ -38,7 +38,9 @@ function SelectEntry({ entryArgs, label, onChange, defaultVal, RNA, classes }) {
                 variant="standard"
             >
                 {entryArgs.values.map(([VALUE, Label], index) => (
-                    <MenuItem value={VALUE} key={index}>{Label}</MenuItem>
+                    <MenuItem value={VALUE} key={index}>
+                        {Label}
+                    </MenuItem>
                 ))}
             </TextField>
         </FormControl>

@@ -91,14 +91,14 @@ class HiddenListMenu extends Component {
                                         onKeyDown={this.handleOutClick}
                                     >
                                         {// Map Extensions list onto react components list
-                                            this.props.extensions.map(ext => {
+                                            this.props.extensions.map((ext, index) => {
                                             return (
                                                 <MenuItem
-                                                    key={ext.id}
+                                                    key={index}
                                                     onClick={event => {
                                                         this.handleSelect(
                                                             event,
-                                                            ext.id,
+                                                            index,
                                                             ext.name
                                                         );
                                                         this.props.onLoadWorkspace(

@@ -13,8 +13,9 @@ const fs = window.require("fs");
 import {} from "@babylonjs/loaders/glTF/index";
 import { selectTNAwithDefault } from "../redux/tempSlice";
 import { useDispatch } from "react-redux";
+import { selectRNA } from "../redux/settingsSlice";
 
-const loadModel = ($_SCENE, $_GLTFpath) => {
+const loadModel = async ($_SCENE, $_GLTFpath) => {
     // load GLB file and convert it to base64 (otherwise cannot be loaded)
     // I have tried using btoa but it turned out it fails to encode it properly
     // but Buffer seem to do it just fine
@@ -58,6 +59,7 @@ export default withStyles(theme => ({
         ...kwargs
     }) => {
         const reactCanvas = useRef(null);
+        const LOG_TRACE = selectRNA("Home Page::Babylon Engine trace");
 
         let $_ENGINE, $_SCENE, $_LIGHT, $_RESIZE;
 
@@ -75,6 +77,8 @@ export default withStyles(theme => ({
                 engineOptions,
                 true
             );
+            if (LOG_TRACE == "VERBOSE")
+                console.log(`Created new Engine. TNA::${TNA}`);
 
             $_SCENE = new Scene($_ENGINE, sceneOptions);
             $_SCENE.clearColor = new Color3(0.6, 0.6, 0.6);
@@ -110,6 +114,8 @@ export default withStyles(theme => ({
             window.addEventListener("resize", $_RESIZE);
 
             return () => {
+                if (LOG_TRACE == "VERBOSE")
+                    console.log(`Disposed Engine. TNA::${TNA}`);
                 $_SCENE.getEngine().dispose();
                 if (window) {
                     window.removeEventListener("resize", $_RESIZE);

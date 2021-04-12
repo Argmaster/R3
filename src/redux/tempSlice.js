@@ -15,16 +15,15 @@ export const temporarySlice = createSlice({
          * @param {array} items object containing [key, value] array-pairs to be set
          */
         setTNA: (state, action) => {
-            for (const item of action.payload)
-                state[item[0]] = item[1];
+            for (const item of action.payload) state[item[0]] = item[1];
         },
     },
 });
 
 export const { setTNA } = temporarySlice.actions;
 
-export const selectTNA = TNA => state => state.temporary[TNA];
+export const selectTNA = TNA => useSelector(state => state.temporary[TNA]);
 export const selectTNAwithDefault = (TNA, defaultVal) => {
-    let val = useSelector(selectTNA(TNA));
+    let val = useSelector(state => state.temporary[TNA]);
     return val != undefined ? val : defaultVal;
 };

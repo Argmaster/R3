@@ -25,8 +25,8 @@ export const globalSettingsSlice = createSlice({
 
 export const { setRNA } = globalSettingsSlice.actions;
 
-export const selectRNA = RNA => state => state.globalSettings[RNA];
+export const selectRNA = RNA => useSelector(state => state.globalSettings[RNA]);
 export const selectRNAwithDefault = (RNA, defaultVal) => {
-    let val = useSelector(selectRNA(RNA));
+    let val = useSelector(state => state.globalSettings[RNA]);
     return val != undefined ? val : defaultVal;
 };
