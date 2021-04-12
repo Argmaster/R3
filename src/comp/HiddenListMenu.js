@@ -12,7 +12,7 @@ import { MemorySharp as ListIcon } from "@material-ui/icons";
 import { withStyles } from "@material-ui/core/styles";
 
 /**
- * Extension AppBar menu, used to select workspace
+ * Extension AppBar (dropdown) menu, used to select workspace
  */
 class HiddenListMenu extends Component {
     state = {
@@ -90,7 +90,8 @@ class HiddenListMenu extends Component {
                                         id="menu-list-grow"
                                         onKeyDown={this.handleOutClick}
                                     >
-                                        {this.props.extensions.map(ext => {
+                                        {// Map Extensions list onto react components list
+                                            this.props.extensions.map(ext => {
                                             return (
                                                 <MenuItem
                                                     key={ext.id}
@@ -126,12 +127,12 @@ class HiddenListMenu extends Component {
     }
 }
 
+// Export HiddenListMenu React Component with custom CSS classes
 export default withStyles(theme => ({
     shadowButton: {
-        boxShadow: `0 0 2px ${theme.palette.primary.contrastText}`,
-        marginLeft: "1rem",
-        paddingLeft: "1rem",
-        paddingRight: "1rem",
+        backgroundColor: theme.palette.primary.dark,
         color: theme.palette.primary.contrastText,
+        padding: "0.4rem 1rem 0.4rem 1rem",
+        marginLeft: "1rem"
     },
 }))(HiddenListMenu);

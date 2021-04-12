@@ -10,7 +10,13 @@ if (require("electron-squirrel-startup")) {
     app.quit();
 }
 
+const refreshTempDir = () => {
+    fs.rmdirSync("./temp");
+    fs.mkdirSync("./temp");
+};
+
 const createWindow = () => {
+    refreshTempDir();
     // Create the browser window.
     const mainWindow = new BrowserWindow({
         width: 1280,
@@ -20,12 +26,12 @@ const createWindow = () => {
         titleBarStyle: "hidden",
         frame: false,
         backgroundColor: "#FFF",
-        alwaysOnTop: true,
         icon: "./public/logo512.png",
         webPreferences: {
             nodeIntegration: true,
             enableRemoteModule: true,
             contextIsolation: false,
+            //webSecurity: false,
         },
     });
     app.mainWindow = mainWindow;
@@ -37,10 +43,9 @@ const createWindow = () => {
     globalShortcut.register("Escape", () => mainWindow.close());
     globalShortcut.register("Ctrl+R", () => mainWindow.reload());
     globalShortcut.register("Ctrl+M", () => mainWindow.minimize());
-    // and load the index.html of the app.
 
     // Open the DevTools.
-    mainWindow.webContents.openDevTools();
+    // setInterval(() => mainWindow.webContents.openDevTools(), 1000);
     mainWindow.setMenu(null);
 };
 

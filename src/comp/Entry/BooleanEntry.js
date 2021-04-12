@@ -1,35 +1,52 @@
-import React, { useState } from "react";
-import { Checkbox, InputLabel } from "@material-ui/core";
+import React from "react";
+import { Switch, InputLabel, withStyles } from "@material-ui/core";
+import { useDispatch } from "react-redux";
+import { selectRNAwithDefault, setRNA } from "../../redux/settingsSlice";
 
 /**
  * Boolean Checkbox entry with label component
  * @param {object} entryArgs none available
  * @param {string} label label to be displayed next to checkbox
+ * @param {string} RNA object id in storage
  * @param {function} onChange function to be called on state change
  * @param {bool} defaultVal default checkbox value
  * @returns React Component
  */
-function BooleanEntry({ entryArgs, label, onChange, defaultVal }) {
-    const [isChecked, setChecked] = useState(defaultVal);
+function BooleanEntry({
+    entryArgs,
+    label,
+    onChange,
+    defaultVal,
+    RNA,
+    classes,
+}) {
+    const dispatch = useDispatch();
+    let isChecked = selectRNAwithDefault(RNA, defaultVal);
     return (
-        <div
-            style={{
-                width: "100%",
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-            }}
-        >
-            <Checkbox
+        <div className={classes.container}>
+            <Switch
+                className={classes.entryClass}
                 checked={isChecked}
                 onChange={() => {
                     onChange(!isChecked);
-                    setChecked(!isChecked);
+                    dispatch(setRNA([[RNA, !isChecked]]));
                 }}
-            ></Checkbox>
-            <InputLabel>{label}</InputLabel>
+            ></Switch>
+            <InputLabel className={classes.label}>{label}</InputLabel>
         </div>
     );
 }
 
-export default BooleanEntry;
+export default withStyles(theme => ({
+    entryClass: {},
+    label: {
+        fontWeight: theme.typography.fontWeightBold,
+    },
+    container: {
+        width: "100%",
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        height: "2rem",
+    },
+}))(BooleanEntry);

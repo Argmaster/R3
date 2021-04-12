@@ -5,15 +5,8 @@ import {
     Typography,
     IconButton,
     Box,
-    useTheme,
 } from "@material-ui/core";
-import {
-    Close,
-    Minimize,
-    CropSquare,
-    Refresh,
-    DeveloperBoard,
-} from "@material-ui/icons";
+import { Close, Minimize, CropSquare, Refresh } from "@material-ui/icons";
 import { withStyles } from "@material-ui/core/styles";
 import HiddenListMenu from "./comp/HiddenListMenu";
 import HomePage from "./comp/HomePage";
@@ -40,11 +33,11 @@ class App extends Component {
                 workspace: HomePage,
                 settings: [
                     {
-                        label: "Dark Mode",
+                        label: "Dark theme",
                         type: "Boolean",
                         entryArgs: {},
                         defaultVal: true,
-                        callback: newVal => {},
+                        callback: (newVal, event) => {},
                     },
                     {
                         label: "Font size",
@@ -55,8 +48,55 @@ class App extends Component {
                             max: 48,
                         },
                         defaultVal: 14,
-                        callback: (newVal, event) => {
-                            console.log(event.target);
+                        callback: newVal => {},
+                    },
+                    {
+                        label: "Keep window topmost",
+                        type: "Boolean",
+                        entryArgs: {},
+                        defaultVal: true,
+                        callback: newVal => {},
+                    },
+                    {
+                        label: "Show dev tools",
+                        type: "Boolean",
+                        entryArgs: {},
+                        defaultVal: false,
+                        callback: newVal => {},
+                    },
+                    {
+                        label: "Extended error trace",
+                        type: "Boolean",
+                        entryArgs: {},
+                        defaultVal: false,
+                        callback: newVal => {},
+                    },
+                    {
+                        label: "Babylon Engine trace",
+                        type: "Select",
+                        entryArgs: {
+                            values: [
+                                ["SILENT", "Silent"],
+                                ["VERBOSE", "Verbose"],
+                            ],
+                        },
+                        defaultVal: "SILENT",
+                        callback: newVal => {},
+                    },
+                    {
+                        label: "Clear settings",
+                        type: "Button",
+                        entryArgs: {},
+                        defaultVal: undefined,
+                        callback: event => {
+                            if (
+                                confirm(
+                                    "Are you sure about erasing all your global settings? It will cause App to reset."
+                                )
+                            ) {
+                                localStorage.removeItem("globalSettings");
+                                app.mainWindow.reload();
+                            }
                         },
                     },
                 ],
@@ -75,7 +115,7 @@ class App extends Component {
      * Load Extensions from ./src/extensions folder
      */
     componentDidMount() {
-        for (let path of fs.readdirSync("./src/extensions")) {
+        for (let path of fs.readdirSync("./src/extensions").sort()) {
             this.LoadExtension(path);
         }
     }
@@ -90,7 +130,9 @@ class App extends Component {
             ...EXTDEC,
             id: this.state.ExtensionList.length,
         };
-        this.setState({ ExtensionList: [...this.state.ExtensionList, extdec] });
+        this.setState({
+            ExtensionList: [...this.state.ExtensionList, extdec].sort(),
+        });
     }
     /**
      * Load workspace GUI into user visible space
@@ -124,26 +166,14 @@ class App extends Component {
                             v4.0.0-dev
                         </Typography>
                         <IconButton
-                            onClick={() => {
-                                if (
-                                    app.mainWindow.webContents.isDevToolsOpened()
-                                )
-                                    app.mainWindow.webContents.closeDevTools();
-                                else app.mainWindow.webContents.openDevTools();
-                            }}
-                            className={classes.menuButton}
-                        >
-                            <DeveloperBoard />
-                        </IconButton>
-                        <IconButton
                             onClick={() => app.mainWindow.reload()}
-                            className={classes.menuButton}
+                            className={classes.menuIcon}
                         >
                             <Refresh />
                         </IconButton>
                         <IconButton
                             onClick={() => app.mainWindow.minimize()}
-                            className={classes.menuButton}
+                            className={classes.menuIcon}
                         >
                             <Minimize />
                         </IconButton>
@@ -153,13 +183,13 @@ class App extends Component {
                                     app.mainWindow.maximize();
                                 else app.mainWindow.restore();
                             }}
-                            className={classes.menuButton}
+                            className={classes.menuIcon}
                         >
                             <CropSquare />
                         </IconButton>
                         <IconButton
                             onClick={() => EnforceExit()}
-                            className={classes.menuButton}
+                            className={classes.menuIcon}
                         >
                             <Close />
                         </IconButton>
@@ -172,10 +202,12 @@ class App extends Component {
         );
     }
 }
+// Export App React Component with custom CSS classes
 export default withStyles(
     theme => ({
-        menuButton: {
+        menuIcon: {
             padding: "0.5rem",
+            color: theme.palette.primary.contrastText,
         },
         title: {
             paddingLeft: "1rem",
@@ -202,21 +234,25 @@ export default withStyles(
         },
         "@global": {
             "::-webkit-scrollbar": {
-                width: (theme.typography.fontSize * 4) / 5,
-                height: (theme.typography.fontSize * 4) / 5,
+                width: theme.typography.fontSize,
+                height: theme.typography.fontSize,
             },
             "::-webkit-scrollbar-track": {
-                backgroundColor: theme.palette.grey[300],
+                backgroundColor: theme.palette.augmentColor({
+                    main: theme.palette.background.paper,
+                }).light,
                 boxShadow: "0 0 5px #FFF",
             },
             "::-webkit-scrollbar-thumb": {
-                backgroundColor: theme.palette.grey[600],
+                backgroundColor: theme.palette.primary.main,
             },
             "::-webkit-scrollbar-thumb:hover": {
-                backgroundColor: theme.palette.secondary.dark,
+                backgroundColor: theme.palette.primary.dark,
             },
             "::-webkit-scrollbar-corner": {
-                backgroundColor: theme.palette.grey[300],
+                backgroundColor: theme.palette.augmentColor({
+                    main: theme.palette.background.paper,
+                }).light,
             },
         },
     }),

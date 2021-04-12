@@ -2,16 +2,18 @@ import {
     IconButton,
     List,
     ListItem,
-    Paper,
     SwipeableDrawer,
     Typography,
     withStyles,
+    FormLabel,
 } from "@material-ui/core";
-import { Close, Settings as SettingsIcon } from "@material-ui/icons";
+import {
+    ArrowDropDown,
+    ChevronLeft,
+    Settings as SettingsIcon,
+} from "@material-ui/icons";
 import React, { useState } from "react";
-import SelectEntry from "./Entry/SelectEntry";
-import { setter } from "../redux/settings/slice";
-import { useDispatch, useSelector } from "react-redux";
+import MapEntry from "./Entry/MapEntry";
 
 /**
  * @param {Array} entryList array of settings blocks in form:
@@ -24,11 +26,14 @@ import { useDispatch, useSelector } from "react-redux";
  * @returns React Component
  */
 function SettingsPanel({ classes, entryList }) {
+    // controls wheather this menu should be shown or hidden
     const [isOpen, setIsOpen] = useState(false);
+    // get index of currently extended dropdown inside this menu
+    const [indexOfShown, setIndexOfShown] = useState(-1);
     return (
         <>
             <IconButton edge="start" onClick={() => setIsOpen(true)}>
-                <SettingsIcon />
+                <SettingsIcon className={classes.menuButton} />
             </IconButton>
             <SwipeableDrawer
                 anchor="left"
@@ -42,7 +47,7 @@ function SettingsPanel({ classes, entryList }) {
                             onClick={() => setIsOpen(false)}
                             className={classes.drawerHideIcon}
                         >
-                            <Close />
+                            <ChevronLeft />
                         </IconButton>
                         <Typography
                             variant="h6"
@@ -53,40 +58,41 @@ function SettingsPanel({ classes, entryList }) {
                     </ListItem>
                     {entryList.map((block, index) => (
                         <div key={index}>
-                            <Paper square={true} elevation={6}>
-                                <ListItem className={classes.ListTitleItem}>
-                                    {block.title}
-                                </ListItem>
-                            </Paper>
-                            {block.list.map((entry, index) => {
-                                let RNA = `${block.title}::${entry.label}`;
-                                const EntryType = SelectEntry(entry.type);
-                                const dispatch = useDispatch();
-                                let defaultVal = useSelector(
-                                    state => state[RNA]
-                                );
-                                if (defaultVal === undefined) {
-                                    defaultVal = entry.defaultVal;
+                            <div
+                                className={classes.ListTitleItem}
+                                onClick={() =>
+                                    setIndexOfShown(
+                                        index != indexOfShown ? index : -1
+                                    )
                                 }
-                                return (
-                                    <ListItem key={index}>
-                                        <EntryType
-                                            label={entry.label}
-                                            defaultVal={defaultVal}
-                                            entryArgs={entry.entryArgs}
-                                            onChange={(value, event) => {
-                                                entry.callback(value, event);
-                                                dispatch(
-                                                    setter({
-                                                        RNA: RNA,
-                                                        value: value,
-                                                    })
-                                                );
-                                            }}
-                                        />
-                                    </ListItem>
-                                );
-                            })}
+                            >
+                                <ArrowDropDown></ArrowDropDown>
+                                <Typography>{block.title}</Typography>
+                            </div>
+                            <div hidden={index != indexOfShown}>
+                                {block.list.length != 0 ? (
+                                    block.list.map((entry, index) => {
+                                        const EntryType = MapEntry(entry.type);
+                                        return (
+                                            <ListItem key={index}>
+                                                <EntryType
+                                                    label={entry.label}
+                                                    defaultVal={
+                                                        entry.defaultVal
+                                                    }
+                                                    entryArgs={entry.entryArgs}
+                                                    RNA={`${block.title}::${entry.label}`}
+                                                    onChange={entry.callback}
+                                                />
+                                            </ListItem>
+                                        );
+                                    })
+                                ) : (
+                                    <FormLabel className={classes.emptyLabel}>
+                                        No options to show
+                                    </FormLabel>
+                                )}
+                            </div>
                         </div>
                     ))}
                 </List>
@@ -96,11 +102,45 @@ function SettingsPanel({ classes, entryList }) {
 }
 
 export default withStyles(theme => ({
+    menuButton: {
+        color: theme.palette.primary.contrastText,
+    },
     ListTitleItem: {
+        display: "flex",
         borderBottom: `2px solid ${theme.palette.secondary.light}`,
+        cursor: "pointer",
+        padding: "0.5rem 1rem 0.5rem 1rem",
+    },
+    emptyLabel: {
+        display: "block",
+        padding: "1rem",
     },
     listClass: {
-        maxWidth: "30rem",
+        maxWidth: "35rem",
+        userSelect: "none",
+        overflowY: "scroll",
+        height: "100%",
+        "::-webkit-scrollbar": {
+            width: theme.typography.fontSize,
+            height: theme.typography.fontSize,
+        },
+        "::-webkit-scrollbar-track": {
+            backgroundColor: theme.palette.augmentColor({
+                main: theme.palette.background.paper,
+            }).light,
+            boxShadow: "0 0 5px #FFF",
+        },
+        "::-webkit-scrollbar-thumb": {
+            backgroundColor: theme.palette.primary.main,
+        },
+        "::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: theme.palette.primary.dark,
+        },
+        "::-webkit-scrollbar-corner": {
+            backgroundColor: theme.palette.augmentColor({
+                main: theme.palette.background.paper,
+            }).light,
+        },
     },
     drawerTitle: {
         marginRight: "1rem",
